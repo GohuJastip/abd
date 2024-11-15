@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Paket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #f6647e;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .paket-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .paket-table th, .paket-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .paket-table th {
+            background-color: #f6647e;
+            color: white;
+        }
+
+        .paket-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .paket-table tr:hover {
+            background-color: #ff8da1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Cek Paket</h1>
+    </div>
+
+    <div style="padding: 20px;">
+        <table class="paket-table" id="paketTable">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Akhiran No WA</th>
+                    <th>No Resi</th>
+                    <th>Berat (kg)</th>
+                    <th>Volume (m³)</th>
+                </tr>
+            </thead>
+            <tbody id="paketList">
+                <!-- Data Paket akan dimasukkan di sini -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Ambil data paket dari localStorage
+        let paketData = JSON.parse(localStorage.getItem('paketData')) || [];
+
+        // Fungsi untuk merender tabel paket
+        function renderPaketTable() {
+            const paketList = document.getElementById('paketList');
+            paketList.innerHTML = ''; // Kosongkan daftar sebelum merender ulang
+
+            paketData.forEach(paket => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${paket.no}</td>
+                    <td>${paket.nama}</td>
+                    <td>${paket.akhiranWA}</td>
+                    <td>${paket.noResi}</td>
+                    <td>${paket.berat}</td>
+                    <td>${paket.volume}</td>
+                `;
+                paketList.appendChild(row);
+            });
+        }
+
+        // Render tabel saat halaman pertama kali dimuat
+        renderPaketTable();
+    </script>
+
+</body>
+</html>

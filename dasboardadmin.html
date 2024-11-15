@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Paket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #f6647e;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .paket-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .paket-table th, .paket-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .paket-table th {
+            background-color: #f6647e;
+            color: white;
+        }
+
+        .paket-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .paket-table tr:hover {
+            background-color: #ff8da1;
+        }
+
+        .action-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Kelola Paket</h1>
+    </div>
+
+    <div style="padding: 20px;">
+        <button class="action-btn" onclick="openModal()">Tambah Paket Baru</button>
+
+        <table class="paket-table" id="paketTable">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Akhiran No WA</th>
+                    <th>No Resi</th>
+                    <th>Berat (kg)</th>
+                    <th>Volume (m³)</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="paketList">
+                <!-- Data Paket akan dimasukkan di sini -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal untuk Tambah/Edit Paket -->
+    <div id="paketModal" style="display:none;">
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); width: 300px; margin: auto;">
+            <h2 id="modalTitle">Tambah Paket Baru</h2>
+            <form id="paketForm" onsubmit="savePaket(event)">
+                <input type="text" id="paketNo" placeholder="No" required>
+                <input type="text" id="paketNama" placeholder="Nama Paket" required>
+                <input type="text" id="paketAkhiranWA" placeholder="Akhiran No WA" required>
+                <input type="text" id="paketNoResi" placeholder="No Resi" required>
+                <input type="number" id="paketBerat" placeholder="Berat (kg)" step="0.01" required>
+                <input type="number" id="paketVolume" placeholder="Volume (m³)" step="0.01" required>
+                <button type="submit">Simpan Paket</button>
+                <button type="button" onclick="closeModal()">Tutup</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let paketData = JSON.parse(localStorage.getItem('paketData')) || []; // Ambil data paket dari localStorage
+        let editIndex = -1;
+
+        // Fungsi untuk menyimpan paket (Tambah/Edit)
+        function savePaket(event) {
+            event.preventDefault();
+            
+            const paketNo = document.getElementById('paketNo').value;
+            const paketNama = document.getElementById('paketNama').value;
+            const paketAkhiranWA = document.getElementById('paketAkhiranWA').value;
+            const paketNoResi = document.getElementById('paketNoResi').value;
+            const paketBerat = document.getElementById('paketBerat').value;
+            const paketVolume = document.getElementById('paketVolume').value;
+
+            if (editIndex === -1) {
+                // Menambah paket baru
+                paketData.push({ no: paketNo, nama: paketNama, akhiranWA: paketAkhiranWA, noResi: paketNoResi, berat: paketBerat, volume: paketVolume });
+            } else {
+                // Mengedit paket yang ada
+                paketData[editIndex] = { no: paketNo, nama: paketNama, akhiranWA: paketAkhiranWA, noResi: paketNoResi, berat: paketBerat, volume: paketVolume };
+            }
+
+            localStorage.setItem('paketData', JSON.stringify(paketData)); // Simpan data ke localStorage
+            renderPaketTable();
+            closeModal();
+        }
+
+        // Fungsi untuk merender tabel paket
+        function renderPaketTable() {
+            const paketList = document.getElementById('paketList');
+            paketList.innerHTML = ''; // Kosongkan daftar sebelum merender ulang
+
+            paketData.forEach((paket, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${paket.no}</td>
+                    <td>${paket.nama}</td>
+                    <td>${paket.akhiranWA}</td>
+                    <td>${paket.noResi}</td>
+                    <td>${paket.berat}</td>
+                    <td>${paket.volume}</td>
+                    <td>
+                        <button class="action-btn" onclick="editPaket(${index})">Edit</button>
+                        <button class="action-btn" onclick="hapusPaket(${index})">Hapus</button>
+                    </td>
+                `;
+                paketList.appendChild(row);
+            });
+        }
+
+        // Fungsi untuk mengedit paket
+        function editPaket(index) {
+            const paket = paketData[index];
+            document.getElementById('paketNo').value = paket.no;
+            document.getElementById('paketNama').value = paket.nama;
+            document.getElementById('paketAkhiranWA').value = paket.akhiranWA;
+            document.getElementById('paketNoResi').value = paket.noResi;
+            document.getElementById('paketBerat').value = paket.berat;
+            document.getElementById('paketVolume').value = paket.volume;
+
+            document.getElementById('modalTitle').textContent = 'Edit Paket';
+            document.getElementById('paketModal').style.display = 'block';
+            editIndex = index;
+        }
+
+        // Fungsi untuk menghapus paket
+        function hapusPaket(index) {
+            paketData.splice(index, 1);
+            localStorage.setItem('paketData', JSON.stringify(paketData)); // Update ke localStorage
+            renderPaketTable();
+        }
+
+        // Fungsi untuk membuka modal tambah/edit paket
+        function openModal() {
+            document.getElementById('paketModal').style.display = 'block';
+            document.getElementById('modalTitle').textContent = 'Tambah Paket Baru';
+            editIndex = -1;
+        }
+
+        // Fungsi untuk menutup modal
+        function closeModal() {
+            document.getElementById('paketModal').style.display = 'none';
+        }
+
+        // Render tabel saat halaman pertama kali dimuat
+        renderPaketTable();
+    </script>
+
+</body>
+</html>
